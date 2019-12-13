@@ -6,17 +6,23 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.lifecycle.Observer
+import androidx.lifecycle.ViewModelProviders
 import androidx.navigation.NavDirections
 import androidx.navigation.Navigation
 import androidx.navigation.fragment.navArgs
 
 import com.example.dogs.R
+import com.example.dogs.viewmodel.DetailViewModel
 import kotlinx.android.synthetic.main.fragment_detail.*
 
 /**
  * A simple [Fragment] subclass.
  */
 class DetailFragment : Fragment() {
+
+    private lateinit var viewModel: DetailViewModel
+    private var dogUUID = 0
 
     private var dogUuid = 0
 
@@ -32,9 +38,25 @@ class DetailFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        viewModel = ViewModelProviders.of(this).get(DetailViewModel::class.java)
+        viewModel.fetch()
+
         arguments?.let {
             dogUuid = DetailFragmentArgs.fromBundle(it).dogUuid
         }
+
+        observeViewModel()
+    }
+
+    private fun observeViewModel() {
+        viewModel.dogLiveData.observe(this, Observer { dog->
+            dog?.let {
+                dogName.text = it.dogBreed
+                dogPurpose.text = it.bredFor
+                dogTemperament.text = it.temperament
+                dogLifespan.text = it.lifespan
+            }
+        })
     }
 
 
